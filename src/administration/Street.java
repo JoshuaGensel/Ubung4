@@ -8,7 +8,7 @@ public class Street {
 	 * null in Haus-Array stands for empty space
 	 */
 	private House[] houses;
-	private int size;
+	public int size;
 
 	Street(int size) {
 		this.houses = new House[size];
@@ -31,6 +31,10 @@ public class Street {
 	
 	public House[] getHouses() {
 		return this.houses;
+	}
+
+	public int getStreetSize(){
+		return this.size;
 	}
 
 }
