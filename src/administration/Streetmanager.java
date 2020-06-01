@@ -2,53 +2,57 @@ package administration;
 
 import java.util.ArrayList;
 
-public class Streetmanager{
+import java.util.Scanner;
+
+import administration.Housetypes.*;
+
+public class Streetmanager {
+
+    Scanner s = new Scanner(System.in);
 
     private ArrayList<Street> streetList = new ArrayList<Street>();
 
     int year = 2000;
     int properties;
-    
 
-
-    public void setup(){
+    public void setup() {
         System.out.println("How many Poperties should the Street have? \ntype 'exit' to exit.");
-        String props = System.console().readLine();
+        String props = s.nextLine();
         this.properties = Integer.parseInt(props);
         Street street = new Street(properties);
         streetList.add(street);
-        while(true){
+        while (true) {
             System.out.println("Would you like to build another street?('yes' or 'no')");
-            String answer = System.console().readLine();
-            if(answer.equals("yes")){
+            String answer = s.nextLine();
+            if (answer.equals("yes")) {
                 System.out.println("How many Poperties should the Street have? \ntype 'exit' to exit.");
-                String props2 = System.console().readLine();
+                String props2 = s.nextLine();
                 this.properties = Integer.parseInt(props2);
                 Street street2 = new Street(properties);
                 streetList.add(street2);
-            }
-            else{
+            } else {
                 break;
             }
         }
     }
 
-    public void loop(Street street){
+    public void loop(Street street) {
 
         int emptyProperty = -1; // "houseNumber" of an empty property
 
         System.out.println(String.format("current year: %d", year));
-        for(int houseNumber=0; houseNumber<street.getStreetSize(); houseNumber++) {
+        for (int houseNumber = 0; houseNumber < street.getStreetSize(); houseNumber++) {
             House house = street.getHouses()[houseNumber];
-            if(house != null) {
-                System.out.println(String.format("New occupied flats for house: %d? \n(current occ. flats: %d)", houseNumber, house.getOccupiedFlats()));
-                String input = System.console().readLine();
-                
+            if (house != null) {
+                System.out.println(String.format("New occupied flats for house: %d? \n(current occ. flats: %d)",
+                        houseNumber, house.getOccupiedFlats()));
+                String input = s.nextLine();
+
                 // If user enters 'exit'
-                if(input.equals("exit")) {
+                if (input.equals("exit")) {
                     System.exit(0);
                 }
-                
+
                 int occupiedFlats = Integer.parseInt(input);
                 street.getHouses()[houseNumber].setOccupiedFlats(occupiedFlats);
             } else {
@@ -59,34 +63,48 @@ public class Streetmanager{
         /**
          * Wrecks a house if its empty and 5 years or older.
          */
-        for(int houseNumber=0; houseNumber<street.getStreetSize(); houseNumber++) {
+        for (int houseNumber = 0; houseNumber < street.getStreetSize(); houseNumber++) {
             House house = street.getHouses()[houseNumber];
-            if(house != null && house.checkWreck(year)) {
+            if (house != null && house.checkWreck(year)) {
                 street.getHouses()[houseNumber] = null;
                 System.out.println(String.format("House: %d got wrecked! :(", emptyProperty));
             }
         }
-        
+
         /**
-         * 
+         * Checks if new Houses should be built.
          */
         boolean buildNewHouse = true;
-        for(int houseNumber=0; houseNumber<street.getStreetSize(); houseNumber++) {
+        for (int houseNumber = 0; houseNumber < street.getStreetSize(); houseNumber++) {
             House house = street.getHouses()[houseNumber];
-            if(house != null && !house.checkFullHouse()) {
+            if (house != null && !house.checkFullHouse()) {
                 buildNewHouse = false;
             }
         }
 
         /**
-         * Builds new House every year if theres an empty property and every house is full.
+         * Builds new House every year if theres an empty property and every house is
+         * full.
          */
-        if(buildNewHouse) {
-            if(emptyProperty == -1) {
+        if (buildNewHouse) {
+            if (emptyProperty == -1) {
                 System.out.println("there is no empty property");
             } else {
-                street.buildHouse(emptyProperty, new House(4, year));
-                System.out.println(String.format("Build house at: %d", emptyProperty));
+                System.out.println("Would you like to build a 'One family house' or a 'Apartmentcomplex'");
+                String houseType = s.nextLine();
+                if (houseType.equals("One family house")) {
+                    street.buildHouse(emptyProperty, new SingleHouse(1, year));
+                    System.out.println(String.format("Build house at: %d", emptyProperty));
+                } else if (houseType.equals("Apartmentcomplex")) {
+                    System.out.println("How many flats?");
+                    String flatnumber = s.nextLine();
+                    int complexFlatNumber = Integer.parseInt(flatnumber);
+                    street.buildHouse(emptyProperty, new ApartmentComplex(complexFlatNumber, year));
+                    System.out.println(String.format("Build Apartmentcomplex at: %d", emptyProperty));
+                }
+                else{
+                    System.exit(0);
+                }
             }
         }
         
@@ -100,7 +118,7 @@ public class Streetmanager{
 
     public void start(){
         setup();
-        for(int i = 0; i < streetList.size(); i++){
+        for(int i = 0; i < streetList.size();){
             while(true){
                 loop(streetList.get(i));
             }

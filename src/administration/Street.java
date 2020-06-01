@@ -1,5 +1,6 @@
 package administration;
 
+import administration.Housetypes.*;
 
 public class Street {
 
@@ -19,7 +20,6 @@ public class Street {
 	 * Returns if building process was successful
 	 */
 	public boolean buildHouse(int houseNumber, House house) {
-		//TODO: houseNumber valid?
 
 		if (this.houses[houseNumber] == null) {
 			this.houses[houseNumber] = house;
@@ -28,7 +28,7 @@ public class Street {
 
 		return false;
 	}
-	
+
 	public House[] getHouses() {
 		return this.houses;
 	}
