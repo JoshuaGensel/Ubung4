@@ -6,6 +6,8 @@ import java.util.Scanner;
 
 import administration.Housetypes.*;
 
+import administration.Exceptions.*;
+
 public class Streetmanager {
 
     Scanner s = new Scanner(System.in);
@@ -16,21 +18,34 @@ public class Streetmanager {
     int properties;
 
     public void setup() {
-        System.out.println("How many Poperties should the Street have? \ntype 'exit' to exit.");
+        try{
+        System.out.println("How many Poperties should the Street have?");
         String props = s.nextLine();
         this.properties = Integer.parseInt(props);
         Street street = new Street(properties);
         streetList.add(street);
+        }
+        catch(NumberFormatException bruh){
+            System.out.println("Please enter a valid number.");
+            setup();
+        }
         while (true) {
             System.out.println("Would you like to build another street?('yes' or 'no')");
             String answer = s.nextLine();
             if (answer.equals("yes")) {
-                System.out.println("How many Poperties should the Street have? \ntype 'exit' to exit.");
+                try{
+                System.out.println("How many Poperties should the Street have?");
                 String props2 = s.nextLine();
                 this.properties = Integer.parseInt(props2);
                 Street street2 = new Street(properties);
                 streetList.add(street2);
-            } else {
+                }
+                catch(NumberFormatException bruh){
+                    System.out.println("Please enter a valid number. The streetsetup restarts now.");
+                    setup();
+                }
+            } 
+            else {
                 break;
             }
         }
@@ -41,23 +56,24 @@ public class Streetmanager {
         int emptyProperty = -1; // "houseNumber" of an empty property
 
         System.out.println(String.format("current year: %d", year));
-        for (int houseNumber = 0; houseNumber < street.getStreetSize(); houseNumber++) {
-            House house = street.getHouses()[houseNumber];
-            if (house != null) {
-                System.out.println(String.format("New occupied flats for house: %d? \n(current occ. flats: %d)",
-                        houseNumber, house.getOccupiedFlats()));
-                String input = s.nextLine();
+        try{
+            for (int houseNumber = 0; houseNumber < street.getStreetSize(); houseNumber++) {
+                House house = street.getHouses()[houseNumber];
+                if (house != null) {
+                    System.out.println(String.format("New occupied flats for house: %d? \n(current occ. flats: %d)",
+                            houseNumber, house.getOccupiedFlats()));
+                    String input = s.nextLine();
 
-                // If user enters 'exit'
-                if (input.equals("exit")) {
-                    System.exit(0);
+                    int occupiedFlats = Integer.parseInt(input);
+                    street.getHouses()[houseNumber].setOccupiedFlats(occupiedFlats);
+                } else {
+                    emptyProperty = houseNumber;
                 }
-
-                int occupiedFlats = Integer.parseInt(input);
-                street.getHouses()[houseNumber].setOccupiedFlats(occupiedFlats);
-            } else {
-                emptyProperty = houseNumber;
             }
+        }
+        catch(NumberFormatException bruh){
+            System.out.println("Please enter a valid number. Year restarts now.");
+            loop(street);
         }
 
         /**
@@ -89,13 +105,16 @@ public class Streetmanager {
         if (buildNewHouse) {
             if (emptyProperty == -1) {
                 System.out.println("there is no empty property");
-            } else {
-                System.out.println("Would you like to build a 'One family house' or a 'Apartmentcomplex'");
+            } 
+            else {
+                System.out.println("Would you like to build a 'One family house' or a 'Apartmentcomplex'?");
                 String houseType = s.nextLine();
+                try{
                 if (houseType.equals("One family house")) {
                     street.buildHouse(emptyProperty, new SingleHouse(1, year));
                     System.out.println(String.format("Build house at: %d", emptyProperty));
-                } else if (houseType.equals("Apartmentcomplex")) {
+                } 
+                else if (houseType.equals("Apartmentcomplex")) {
                     System.out.println("How many flats?");
                     String flatnumber = s.nextLine();
                     int complexFlatNumber = Integer.parseInt(flatnumber);
@@ -103,7 +122,13 @@ public class Streetmanager {
                     System.out.println(String.format("Build Apartmentcomplex at: %d", emptyProperty));
                 }
                 else{
-                    System.exit(0);
+                    NoHousetype noHousetype = new NoHousetype();
+                    throw noHousetype;
+                }
+                }
+                catch(NoHousetype noHousetype){
+                    System.out.println("Please insert an available Housetype. Year restarts now.");
+                    year--;
                 }
             }
         }
